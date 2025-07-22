@@ -1,0 +1,114 @@
+import { useState } from 'react'
+import {Link, useNavigate} from 'react-router-dom'
+import { MdAlternateEmail } from "react-icons/md";
+import { TbLockPassword } from "react-icons/tb";
+import { FcGoogle } from "react-icons/fc";
+import {useDispatch, useSelector} from 'react-redux'
+import { getMeUser, loginUser } from '../features/auth/authSlice';
+import {images} from '../assets/assets'
+
+const SignUp = () => {
+
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    })
+
+
+    const { loading, error } = useSelector((state) => state.auth);
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const resultAction = await dispatch(loginUser(formData));
+
+        if (loginUser.fulfilled.match(resultAction)) {
+            const {user, token }= resultAction.payload;
+            console.log("User:", user);
+            console.log("Token:", token)
+
+            dispatch(getMeUser());
+            navigate('/');
+            
+        } 
+    };
+ 
+
+    const handleInputChange = (e) => {
+        setFormData({...formData, [e.target.name]: e.target.value});
+    }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-r from-start to-yellow-400 flex items-center justify-center p-8">
+        <div className="bg-white/20 rounded-xl shadow-lg backdrop-blur-sm w-full max-w-4xl  flex flex-col md:flex-row overflow-hidden h-[550px]">
+            {/* Left Side*/}
+            <div className='w-full md:w-1/2 p-6 '>
+                <div className="flex flex-col ">
+                    <h1 className='text-3xl text-yellow-400  font-semibold'>Excel <span className='text-gray-950' >Analytics</span></h1>
+                    <p className='font-medium text-lg text-gray-500 mt-1'>Enter your account details to sign in</p>
+                    {error && <div className="text-sm text-red-600 mt-2">
+                        {error}
+                    </div>}
+
+                    <form className='w-full flex flex-col gap-3 mt-5' onSubmit={handleSubmit}>
+                        <div className='w-full border-2 border-gray-950 flex items-center gap-2 rounded-xl'>
+                            <MdAlternateEmail className='size-4 ml-3 text-gray-950 ' />
+                            <input 
+                                type="email"
+                                className='w-full border-0 outline-0  text-sm md:text-base p-3 ps-0 bg-transparent'
+                                placeholder='Enter Your Email'
+                                name='email'
+                                onChange={handleInputChange}
+                                value={formData.email} 
+                            />
+                        </div>
+                        <div className='w-full border-2 relative border-gray-950 flex items-center gap-2 rounded-xl'>
+                            <TbLockPassword className='size-4 ml-3 text-gray-950'/>
+                            <input
+                                type='password'
+                                className='w-full border-0 outline-0 text-sm md:text-base p-3 ps-0 bg-transparent'
+                                placeholder='Passcode'
+                                name='password'
+                                onChange={handleInputChange}
+                                value={formData.password}
+                            />
+                        </div>
+                        <div className="flex justify-end">
+                            <button className='font-small cursor-pointer text-yellow-400'>Forget Password?</button>
+                        </div>
+                        
+                        <div className='flex flex-col gap-y-4'>
+                            <button className='active:scale-[.98] active:duration-75 hover:scale-[1.01] ease-in-out transition-all bg-gray-950 text-white rounded-xl cursor-pointer py-3'>Sign In</button>
+                        </div>
+                    </form>
+                    <div className="flex flex-col gap-3 mt-4">
+                        <p className='flex justify-center'>----- or -----</p>
+                        <div className='active:scale-[.98] active:duration-75 hover:scale-[1.01] ease-in-out transition-all flex justify-center items-center border-1 rounded-xl cursor-pointer'>
+                            <FcGoogle/>
+                            <p className=' pl-2 py-3'>Sign in with Google</p>
+                        </div>
+                        <div className='flex justify-center items-center'>
+                            <p className='font-small text-gray-700 italic text-base'>Don't have an account?</p>
+                            <Link to='/signin'>
+                                <button className='font-medium cursor-pointer text-gray-950 ml-2'>Sign Up</button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/*Right Side*/} 
+            <div className="w-full md:w-1/2 hidden sm:block">
+                <img src={ images.login }  alt="login visual" />
+            </div>
+        </div>
+
+    </div>
+    
+    
+  )
+}
+
+export default SignUp
